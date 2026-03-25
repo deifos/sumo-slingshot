@@ -6,9 +6,10 @@ interface ResultsProps {
   scores: { player: number; opponent: number }
   onRematch: () => void
   onExit: () => void
+  rematchLabel?: string
 }
 
-export function Results({ winner, scores, onRematch, onExit }: ResultsProps) {
+export function Results({ winner, scores, onRematch, onExit, rematchLabel }: ResultsProps) {
   const isPlayerWin = winner === "player"
 
   return (
@@ -31,7 +32,7 @@ export function Results({ winner, scores, onRematch, onExit }: ResultsProps) {
             onClick={onRematch}
             className="font-game h-auto rounded-none border border-white/20 bg-white px-8 py-3 text-sm tracking-[0.2em] text-black transition-all hover:bg-[#c2fe0b]"
           >
-            REMATCH
+            {rematchLabel ?? "REMATCH"}
           </Button>
           <Button
             onClick={onExit}

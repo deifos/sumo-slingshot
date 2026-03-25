@@ -68,6 +68,35 @@ export function launchBody(body: Body, pinchPos: Vec2, arenaW: number, arenaH: n
   body.vel.y = -dy * arenaH * LAUNCH_MULT
 }
 
+/** Multiplayer collision: only applies impulse to body `a`, treats `b` as immovable network ghost */
+export function resolveCollisionOneSided(
+  a: Body,
+  b: Body,
+  e: number = RESTITUTION,
+): boolean {
+  const aHalf = a.size / 2
+  const bHalf = b.size / 2
+
+  const ox = Math.min(a.pos.x + aHalf, b.pos.x + bHalf) -
+    Math.max(a.pos.x - aHalf, b.pos.x - bHalf)
+  const oy = Math.min(a.pos.y + aHalf, b.pos.y + bHalf) -
+    Math.max(a.pos.y - aHalf, b.pos.y - bHalf)
+
+  if (ox <= 0 || oy <= 0) return false
+
+  if (ox < oy) {
+    const dir = a.pos.x < b.pos.x ? 1 : -1
+    a.pos.x -= dir * ox
+    a.vel.x = -a.vel.x * e + b.vel.x * (1 + e) * 0.5
+  } else {
+    const dir = a.pos.y < b.pos.y ? 1 : -1
+    a.pos.y -= dir * oy
+    a.vel.y = -a.vel.y * e + b.vel.y * (1 + e) * 0.5
+  }
+
+  return true
+}
+
 export function createBody(x: number, y: number, size: number, mass: number): Body {
   return {
     pos: { x, y },

@@ -1,4 +1,4 @@
-# Slingshot Wars Multiplayer - Build Plan
+# Sumo Slingshot - Build Plan
 
 Sumo-style multiplayer game: two players slingshot their webcam boxes at each other.
 First to knock the other out of the arena wins.

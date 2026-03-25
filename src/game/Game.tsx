@@ -5,6 +5,7 @@ import { Arena, type ArenaHandle } from "./Arena"
 import { Countdown } from "./Countdown"
 import { Results } from "./Results"
 import { Hud } from "./Hud"
+import { VERSION } from "./version"
 
 interface GameProps {
   onExit: () => void
@@ -69,6 +70,9 @@ export function Game({ onExit }: GameProps) {
           onExit={onExit}
         />
       )}
+      <span className="font-game pointer-events-none absolute bottom-2 right-3 z-10 text-[0.5rem] tracking-wider text-white/10">
+        v{VERSION}
+      </span>
     </div>
   )
 }

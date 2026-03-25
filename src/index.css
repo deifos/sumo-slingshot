@@ -120,11 +120,58 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    }
+  }
   body {
     @apply bg-background text-foreground;
-    }
+    overflow: hidden;
+    touch-action: none;
+    overscroll-behavior: none;
+  }
   html {
     @apply font-sans;
-    }
+  }
+}
+
+/* Game font */
+.font-game {
+  font-family: 'Syne Mono', monospace;
+}
+
+/* Arena */
+.arena-container {
+  position: relative;
+  height: 95dvh;
+  width: min(95dvh, 95vw);
+  aspect-ratio: 1 / 1;
+  user-select: none;
+  cursor: crosshair;
+}
+
+/* Player boxes */
+.player-box {
+  position: absolute;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  border: 2px solid transparent;
+  transition: border-color 80ms ease-out;
+}
+
+.player-box .no-cam {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Syne Mono', monospace;
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.3);
+  text-align: center;
+  pointer-events: none;
+}
+
+/* Hide no-cam message when video is playing */
+.player-box video:not([src=""]) ~ .no-cam {
+  display: none;
 }

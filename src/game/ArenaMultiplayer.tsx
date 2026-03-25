@@ -56,14 +56,16 @@ export const ArenaMultiplayer = forwardRef<ArenaMultiplayerHandle, Props>(
     const playerSize = useRef(0)
 
     const phaseRef = useRef(phase)
-    phaseRef.current = phase
     const onRingOutRef = useRef(onRingOut)
-    onRingOutRef.current = onRingOut
     const onStateUpdateRef = useRef(onStateUpdate)
-    onStateUpdateRef.current = onStateUpdate
+    useEffect(() => {
+      phaseRef.current = phase
+      onRingOutRef.current = onRingOut
+      onStateUpdateRef.current = onStateUpdate
+    })
     const ringOutFired = useRef(false)
 
-    const pinch = useHandTracking(videoRef)
+    const pinchRef = useHandTracking(videoRef)
     const mousePinch = useRef<PinchState>({ active: false, pos: null })
 
     const lastFlashTime = useRef(0)
@@ -80,7 +82,7 @@ export const ArenaMultiplayer = forwardRef<ArenaMultiplayerHandle, Props>(
     }, [remoteStream])
 
     function getActivePinch(): PinchState {
-      if (pinch.current.active || pinch.current.pos) return pinch.current
+      if (pinchRef.current.active || pinchRef.current.pos) return pinchRef.current
       return mousePinch.current
     }
 
@@ -186,7 +188,7 @@ export const ArenaMultiplayer = forwardRef<ArenaMultiplayerHandle, Props>(
       // Detect pinch release -> launch
       if (wasPinching.current && !isPinching && activePinch.pos) {
         launchBody(playerBody.current, activePinch.pos, w, h)
-        pinch.current = { active: false, pos: null }
+        pinchRef.current = { active: false, pos: null }
         mousePinch.current = { active: false, pos: null }
       }
       wasPinching.current = isPinching
@@ -256,8 +258,8 @@ export const ArenaMultiplayer = forwardRef<ArenaMultiplayerHandle, Props>(
       const overlayCtx = overlayCanvasRef.current?.getContext("2d")
       if (overlayCtx) {
         const ps = playerSize.current
-        const handActive = pinch.current.active
-        drawSlingshot(overlayCtx, ps, ps, handActive ? pinch.current.pos : null)
+        const handActive = pinchRef.current.active
+        drawSlingshot(overlayCtx, ps, ps, handActive ? pinchRef.current.pos : null)
       }
     })
 

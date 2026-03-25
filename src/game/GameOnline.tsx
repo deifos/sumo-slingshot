@@ -78,13 +78,6 @@ export function GameOnline({ mode, roomCode, onExit }: GameOnlineProps) {
     [],
   )
 
-  const handleRematchConfirmed = useCallback(() => {
-    setWinner(null)
-    arenaRef.current?.resetPositions()
-    opponentState.current = null
-    mp.sendReady()
-  }, []) // mp not available yet, will fix below
-
   const mp = useMultiplayer({
     roomCode,
     localStream,

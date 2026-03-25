@@ -1,14 +1,16 @@
 import { useEffect, useRef } from "react"
 
 export function useGameLoop(callback: () => void): void {
-  const cb = useRef(callback)
-  cb.current = callback
+  const cbRef = useRef(callback)
+  useEffect(() => {
+    cbRef.current = callback
+  })
 
   useEffect(() => {
     let id: number
 
     function loop() {
-      cb.current()
+      cbRef.current()
       id = requestAnimationFrame(loop)
     }
 

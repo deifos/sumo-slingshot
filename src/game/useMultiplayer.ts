@@ -2,7 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import PartySocket from "partysocket"
 import type { MultiplayerState, PlayerNumber, RoomStatus } from "./multiplayer"
 
-const PARTYKIT_HOST = import.meta.env.VITE_PARTYKIT_HOST ?? "localhost:1999"
+const PARTYKIT_HOST =
+  import.meta.env.VITE_PARTYKIT_HOST ?? "sumo-slingshot.partykit.dev"
 
 const STUN_SERVERS: RTCConfiguration = {
   iceServers: [
@@ -59,13 +60,15 @@ export function useMultiplayer(options: Options): UseMultiplayerReturn {
 
   // Stable refs for callbacks
   const onGameStartRef = useRef(onGameStart)
-  onGameStartRef.current = onGameStart
   const onOpponentStateRef = useRef(onOpponentState)
-  onOpponentStateRef.current = onOpponentState
   const onRingOutConfirmedRef = useRef(onRingOutConfirmed)
-  onRingOutConfirmedRef.current = onRingOutConfirmed
   const onRematchConfirmedRef = useRef(onRematchConfirmed)
-  onRematchConfirmedRef.current = onRematchConfirmed
+  useEffect(() => {
+    onGameStartRef.current = onGameStart
+    onOpponentStateRef.current = onOpponentState
+    onRingOutConfirmedRef.current = onRingOutConfirmed
+    onRematchConfirmedRef.current = onRematchConfirmed
+  })
 
   // --- WebRTC setup helpers ---
 

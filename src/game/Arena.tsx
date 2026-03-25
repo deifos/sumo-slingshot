@@ -55,15 +55,17 @@ export const Arena = forwardRef<ArenaHandle, ArenaProps>(function Arena(
 
   // Game state refs (for game loop access without stale closures)
   const phaseRef = useRef(phase)
-  phaseRef.current = phase
   const onRingOutRef = useRef(onRingOut)
-  onRingOutRef.current = onRingOut
   const onCollisionRef = useRef(onCollision)
-  onCollisionRef.current = onCollision
+  useEffect(() => {
+    phaseRef.current = phase
+    onRingOutRef.current = onRingOut
+    onCollisionRef.current = onCollision
+  })
   const ringOutFired = useRef(false)
 
   // Pinch state from hand tracking
-  const pinch = useHandTracking(videoRef)
+  const pinchRef = useHandTracking(videoRef)
 
   // Mouse/touch fallback
   const mousePinch = useRef<PinchState>({ active: false, pos: null })
@@ -80,7 +82,7 @@ export const Arena = forwardRef<ArenaHandle, ArenaProps>(function Arena(
 
   // Get the effective pinch (hand tracking takes priority over mouse)
   function getActivePinch(): PinchState {
-    if (pinch.current.active || pinch.current.pos) return pinch.current
+    if (pinchRef.current.active || pinchRef.current.pos) return pinchRef.current
     return mousePinch.current
   }
 
@@ -208,7 +210,7 @@ export const Arena = forwardRef<ArenaHandle, ArenaProps>(function Arena(
     if (wasPinching.current && !isPinching && activePinch.pos) {
       launchBody(playerBody.current, activePinch.pos, w, h)
       // Clear the stored position after launch
-      pinch.current = { active: false, pos: null }
+      pinchRef.current = { active: false, pos: null }
       mousePinch.current = { active: false, pos: null }
     }
     wasPinching.current = isPinching
@@ -277,8 +279,8 @@ export const Arena = forwardRef<ArenaHandle, ArenaProps>(function Arena(
     const overlayCtx = overlayCanvasRef.current?.getContext("2d")
     if (overlayCtx) {
       const ps = playerSize.current
-      const handActive = pinch.current.active
-      drawSlingshot(overlayCtx, ps, ps, handActive ? pinch.current.pos : null)
+      const handActive = pinchRef.current.active
+      drawSlingshot(overlayCtx, ps, ps, handActive ? pinchRef.current.pos : null)
     }
   })
 

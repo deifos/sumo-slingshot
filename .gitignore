@@ -32,3 +32,12 @@ dist-ssr
 
 # PartyKit
 .partykit/
+
+# Claude Code
+.claude/
+
+# Dev notes
+notes/
+
+# Prototype
+concept_game.html

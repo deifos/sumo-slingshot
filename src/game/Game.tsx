@@ -12,11 +12,15 @@ interface GameProps {
 }
 
 export function Game({ onExit }: GameProps) {
-  const [phase, setPhase] = useState<GamePhase>("countdown")
+  const [phase, setPhase] = useState<GamePhase>("landing")
   const [winner, setWinner] = useState<Winner>(null)
   const [scores, setScores] = useState({ player: 0, opponent: 0 })
   const [countdown, setCountdown] = useState(COUNTDOWN_SECONDS)
   const arenaRef = useRef<ArenaHandle>(null)
+
+  const handleCameraReady = useCallback(() => {
+    setPhase("countdown")
+  }, [])
 
   // Countdown timer
   useEffect(() => {
@@ -59,7 +63,14 @@ export function Game({ onExit }: GameProps) {
 
   return (
     <div className="relative flex min-h-svh items-center justify-center overflow-hidden bg-black">
-      <Arena ref={arenaRef} phase={phase} onRingOut={handleRingOut} />
+      <Arena ref={arenaRef} phase={phase} onRingOut={handleRingOut} onCameraReady={handleCameraReady} />
+      {phase === "landing" && (
+        <div className="pointer-events-none absolute inset-0 z-20 flex flex-col items-center justify-center gap-3">
+          <p className="font-game animate-pulse text-sm tracking-[0.3em] text-white/40">
+            LOADING CAMERA...
+          </p>
+        </div>
+      )}
       <Hud scores={scores} />
       {phase === "countdown" && <Countdown count={countdown} />}
       {phase === "results" && (

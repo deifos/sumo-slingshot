@@ -33,11 +33,12 @@ interface Props {
   onRingOut: (who: "player" | "opponent") => void
   onStateUpdate: (state: MultiplayerState) => void
   opponentState: React.MutableRefObject<MultiplayerState | null>
+  onCameraReady?: () => void
 }
 
 export const ArenaMultiplayer = forwardRef<ArenaMultiplayerHandle, Props>(
   function ArenaMultiplayer(
-    { phase, playerNumber, remoteStream, onRingOut, onStateUpdate, opponentState },
+    { phase, playerNumber, remoteStream, onRingOut, onStateUpdate, opponentState, onCameraReady },
     ref,
   ) {
     const containerRef = useRef<HTMLDivElement>(null)
@@ -65,7 +66,7 @@ export const ArenaMultiplayer = forwardRef<ArenaMultiplayerHandle, Props>(
     })
     const ringOutFired = useRef(false)
 
-    const pinchRef = useHandTracking(videoRef)
+    const pinchRef = useHandTracking(videoRef, onCameraReady)
     const mousePinch = useRef<PinchState>({ active: false, pos: null })
 
     const lastFlashTime = useRef(0)

@@ -34,8 +34,13 @@ async function loadMediaPipe(): Promise<void> {
 
 export function useHandTracking(
   videoRef: RefObject<HTMLVideoElement | null>,
+  onReady?: () => void,
 ): MutableRefObject<PinchState> {
   const pinch = useRef<PinchState>({ active: false, pos: null })
+  const onReadyRef = useRef(onReady)
+  useEffect(() => {
+    onReadyRef.current = onReady
+  })
 
   useEffect(() => {
     const video = videoRef.current
@@ -144,6 +149,7 @@ export function useHandTracking(
 
       try {
         await cameraInstance.start()
+        onReadyRef.current?.()
       } catch {
         console.warn("Camera start failed")
       }

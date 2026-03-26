@@ -24,6 +24,11 @@ export function GameOnline({ mode, roomCode, onExit }: GameOnlineProps) {
   const arenaRef = useRef<ArenaMultiplayerHandle>(null)
   const opponentState = useRef<MultiplayerState | null>(null)
   const [localStream, setLocalStream] = useState<MediaStream | null>(null)
+  const [cameraReady, setCameraReady] = useState(false)
+
+  const handleCameraReady = useCallback(() => {
+    setCameraReady(true)
+  }, [])
 
   // Get webcam stream for WebRTC (mediaDevices requires HTTPS or localhost)
   useEffect(() => {
@@ -93,12 +98,12 @@ export function GameOnline({ mode, roomCode, onExit }: GameOnlineProps) {
     },
   })
 
-  // When opponent joins and we're in lobby, both signal ready
+  // When opponent joins and camera is ready, signal ready to server
   useEffect(() => {
-    if (mp.status === "opponent-joined" && phase === "landing") {
+    if (mp.status === "opponent-joined" && phase === "landing" && cameraReady) {
       mp.sendReady()
     }
-  }, [mp.status, phase, mp])
+  }, [mp.status, phase, mp, cameraReady])
 
   const handleRingOut = useCallback(
     (who: "player" | "opponent") => {
@@ -142,6 +147,7 @@ export function GameOnline({ mode, roomCode, onExit }: GameOnlineProps) {
         onRingOut={handleRingOut}
         onStateUpdate={handleStateUpdate}
         opponentState={opponentState}
+        onCameraReady={handleCameraReady}
       />
       <Hud scores={scores} />
       {phase === "countdown" && <Countdown count={countdown} />}

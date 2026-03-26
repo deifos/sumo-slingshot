@@ -30,10 +30,11 @@ interface ArenaProps {
   phase: GamePhase
   onRingOut: (who: "player" | "opponent") => void
   onCollision?: () => void
+  onCameraReady?: () => void
 }
 
 export const Arena = forwardRef<ArenaHandle, ArenaProps>(function Arena(
-  { phase, onRingOut, onCollision },
+  { phase, onRingOut, onCollision, onCameraReady },
   ref,
 ) {
   // Refs for DOM elements
@@ -65,7 +66,7 @@ export const Arena = forwardRef<ArenaHandle, ArenaProps>(function Arena(
   const ringOutFired = useRef(false)
 
   // Pinch state from hand tracking
-  const pinchRef = useHandTracking(videoRef)
+  const pinchRef = useHandTracking(videoRef, onCameraReady)
 
   // Mouse/touch fallback
   const mousePinch = useRef<PinchState>({ active: false, pos: null })

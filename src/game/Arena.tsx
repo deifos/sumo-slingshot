@@ -80,6 +80,7 @@ export const Arena = forwardRef<ArenaHandle, ArenaProps>(function Arena(
 
   // Track pinch release for launching
   const wasPinching = useRef(false)
+  const releaseFrames = useRef(0)
 
   // Get the effective pinch (hand tracking takes priority over mouse)
   function getActivePinch(): PinchState {
@@ -207,12 +208,18 @@ export const Arena = forwardRef<ArenaHandle, ArenaProps>(function Arena(
     const activePinch = getActivePinch()
     const isPinching = activePinch.active
 
-    // Detect pinch release -> launch
-    if (wasPinching.current && !isPinching && activePinch.pos) {
-      launchBody(playerBody.current, activePinch.pos, w, h)
-      // Clear the stored position after launch
-      pinchRef.current = { active: false, pos: null }
-      mousePinch.current = { active: false, pos: null }
+    // Detect pinch release -> launch (debounced: require 3 consecutive non-pinch frames
+    // to avoid ghost launches from momentary hand-tracking dropouts)
+    if (wasPinching.current && !isPinching) {
+      releaseFrames.current++
+      if (releaseFrames.current >= 3 && activePinch.pos) {
+        launchBody(playerBody.current, activePinch.pos, w, h)
+        pinchRef.current = { active: false, pos: null }
+        mousePinch.current = { active: false, pos: null }
+        releaseFrames.current = 0
+      }
+    } else {
+      releaseFrames.current = 0
     }
     wasPinching.current = isPinching
 

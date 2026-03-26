@@ -74,12 +74,18 @@ export const ArenaMultiplayer = forwardRef<ArenaMultiplayerHandle, Props>(
     const flashTimeoutOpp = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
     const wasPinching = useRef(false)
+    const releaseFrames = useRef(0)
 
-    // Attach remote stream to video element
+    // Attach remote stream to video element and start playback
     useEffect(() => {
-      if (remoteVideoRef.current && remoteStream) {
-        remoteVideoRef.current.srcObject = remoteStream
-      }
+      const video = remoteVideoRef.current
+      if (!video || !remoteStream) return
+      video.srcObject = remoteStream
+      video.play().catch(() => {/* autoplay policy — will play on first interaction */})
+      // Re-trigger play when tracks are added (stream may be empty at attach time)
+      const onTrack = () => video.play().catch(() => null)
+      remoteStream.addEventListener("addtrack", onTrack)
+      return () => remoteStream.removeEventListener("addtrack", onTrack)
     }, [remoteStream])
 
     function getActivePinch(): PinchState {
@@ -186,11 +192,18 @@ export const ArenaMultiplayer = forwardRef<ArenaMultiplayerHandle, Props>(
       const activePinch = getActivePinch()
       const isPinching = activePinch.active
 
-      // Detect pinch release -> launch
-      if (wasPinching.current && !isPinching && activePinch.pos) {
-        launchBody(playerBody.current, activePinch.pos, w, h)
-        pinchRef.current = { active: false, pos: null }
-        mousePinch.current = { active: false, pos: null }
+      // Detect pinch release -> launch (debounced: require 3 consecutive non-pinch frames
+      // to avoid ghost launches from momentary hand-tracking dropouts)
+      if (wasPinching.current && !isPinching) {
+        releaseFrames.current++
+        if (releaseFrames.current >= 3 && activePinch.pos) {
+          launchBody(playerBody.current, activePinch.pos, w, h)
+          pinchRef.current = { active: false, pos: null }
+          mousePinch.current = { active: false, pos: null }
+          releaseFrames.current = 0
+        }
+      } else {
+        releaseFrames.current = 0
       }
       wasPinching.current = isPinching
 
@@ -229,16 +242,16 @@ export const ArenaMultiplayer = forwardRef<ArenaMultiplayerHandle, Props>(
         pinching: isPinching,
       })
 
-      // Ring-out detection (only detect own ring-out)
+      // Ring-out detection: only detect OWN ring-out and report to server.
+      // The opponent detects their own and reports it. Server confirms for both.
+      // (Detecting opponent client-side causes ringOutFired to block self-detection
+      //  if there's ever a sync mismatch.)
       if (!ringOutFired.current) {
         const cx = w / 2
         const cy = h / 2
         if (isRingOut(playerBody.current, cx, cy, ringRadius)) {
           ringOutFired.current = true
           onRingOutRef.current("player")
-        } else if (isRingOut(opponentBody.current, cx, cy, ringRadius)) {
-          ringOutFired.current = true
-          onRingOutRef.current("opponent")
         }
       }
 

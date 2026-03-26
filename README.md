@@ -1,5 +1,7 @@
 # Sumo Slingshot
 
+**Play now → [sumo-slingshot.pages.dev](https://sumo-slingshot.pages.dev/)**
+
 A webcam-powered sumo battle game. Pinch to grab your webcam box, drag to aim, release to slingshot it at your opponent. Knock them out of the ring to win.
 
 Play solo against a bot or create a room and battle a friend in real-time multiplayer.
@@ -55,10 +57,26 @@ npm run dev          # Vite frontend
 npm run dev:party    # PartyKit server
 ```
 
+### Environment Variables
+
+Copy `.env.example` to `.env` and set your PartyKit host:
+
+```bash
+VITE_PARTYKIT_HOST=localhost:1999       # local dev
+VITE_PARTYKIT_HOST=sumo-slingshot.deifos.partykit.dev  # production
+```
+
 ### Build
 
 ```bash
 npm run build
+```
+
+### Deploy
+
+```bash
+npm run deploy:party   # deploy PartyKit server
+# then deploy dist/ to Cloudflare Pages
 ```
 
 ### Lint & Format

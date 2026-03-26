@@ -57,6 +57,7 @@ export function useMultiplayer(options: Options): UseMultiplayerReturn {
   const dcRef = useRef<RTCDataChannel | null>(null)
   const playerIdRef = useRef("")
   const lastSendTime = useRef(0)
+  const pendingCandidates = useRef<RTCIceCandidateInit[]>([])
 
   // Stable refs for callbacks
   const onGameStartRef = useRef(onGameStart)
@@ -164,10 +165,25 @@ export function useMultiplayer(options: Options): UseMultiplayerReturn {
               data: { type: "answer", sdp: answer },
             }),
           )
+          // Flush any ICE candidates that arrived before the offer
+          for (const candidate of pendingCandidates.current) {
+            await pc.addIceCandidate(new RTCIceCandidate(candidate))
+          }
+          pendingCandidates.current = []
         } else if (signal.type === "answer") {
           await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp))
+          // Flush any ICE candidates that arrived before the answer
+          for (const candidate of pendingCandidates.current) {
+            await pc.addIceCandidate(new RTCIceCandidate(candidate))
+          }
+          pendingCandidates.current = []
         } else if (signal.type === "ice-candidate") {
-          await pc.addIceCandidate(new RTCIceCandidate(signal.candidate))
+          if (pc.remoteDescription) {
+            await pc.addIceCandidate(new RTCIceCandidate(signal.candidate))
+          } else {
+            // Buffer until remote description is set
+            pendingCandidates.current.push(signal.candidate)
+          }
         }
       } catch (err) {
         console.warn("WebRTC signal error:", err)
@@ -212,6 +228,7 @@ export function useMultiplayer(options: Options): UseMultiplayerReturn {
           pcRef.current?.close()
           pcRef.current = null
           dcRef.current = null
+          pendingCandidates.current = []
           setRemoteStream(null)
           break
 

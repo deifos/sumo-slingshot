@@ -141,7 +141,8 @@ export function useHandTracking(
 
       cameraInstance = new CameraCtor(video!, {
         onFrame: async () => {
-          await handsInstance!.send({ image: video! })
+          if (cancelled || !handsInstance) return
+          await handsInstance.send({ image: video! })
         },
         width: 640,
         height: 640,

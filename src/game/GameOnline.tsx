@@ -127,18 +127,17 @@ export function GameOnline({ mode, roomCode, onExit }: GameOnlineProps) {
     mp.sendRematchRequest()
   }, [mp])
 
-  // Show lobby while waiting for opponent
-  if (phase === "landing" && (mp.status === "connecting" || mp.status === "waiting" || mp.status === "room-full" || mp.status === "disconnected")) {
-    return <Lobby mode={mode} roomCode={roomCode} status={mp.status} onBack={onExit} />
-  }
-
-  // Show lobby when opponent just joined (before game starts)
-  if (phase === "landing" && mp.status === "opponent-joined") {
-    return <Lobby mode={mode} roomCode={roomCode} status={mp.status} onBack={onExit} />
-  }
+  const inLobby =
+    phase === "landing" &&
+    (mp.status === "connecting" ||
+      mp.status === "waiting" ||
+      mp.status === "opponent-joined" ||
+      mp.status === "room-full" ||
+      mp.status === "disconnected")
 
   return (
     <div className="relative flex min-h-svh items-center justify-center overflow-hidden bg-black">
+      {/* Arena always mounted so camera initializes during lobby wait */}
       <ArenaMultiplayer
         ref={arenaRef}
         phase={phase}
@@ -149,6 +148,12 @@ export function GameOnline({ mode, roomCode, onExit }: GameOnlineProps) {
         opponentState={opponentState}
         onCameraReady={handleCameraReady}
       />
+      {/* Lobby overlaid on top while waiting */}
+      {inLobby && (
+        <div className="absolute inset-0 z-50">
+          <Lobby mode={mode} roomCode={roomCode} status={mp.status} onBack={onExit} />
+        </div>
+      )}
       <Hud scores={scores} />
       {phase === "countdown" && <Countdown count={countdown} />}
       {phase === "results" && (

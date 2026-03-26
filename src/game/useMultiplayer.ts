@@ -256,6 +256,10 @@ export function useMultiplayer(options: Options): UseMultiplayerReturn {
           break
         }
 
+        case "state":
+          onOpponentStateRef.current(msg.data as MultiplayerState)
+          break
+
         case "rematch-requested":
           setOpponentWantsRematch(true)
           break
@@ -303,6 +307,9 @@ export function useMultiplayer(options: Options): UseMultiplayerReturn {
     const dc = dcRef.current
     if (dc?.readyState === "open") {
       dc.send(JSON.stringify(state))
+    } else {
+      // Fallback: relay through PartyKit when DataChannel isn't open yet
+      socketRef.current?.send(JSON.stringify({ type: "state", data: state }))
     }
   }, [])
 

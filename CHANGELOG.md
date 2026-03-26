@@ -2,6 +2,19 @@
 
 All notable changes to Sumo Slingshot will be documented in this file.
 
+## [0.3.2] - 2026-03-26
+
+### Added
+- Footer with builder credit (Vlad → @deifosv on X), inspired-by credit (@measure_plan), GitHub repo link, and share button (Web Share API with X fallback)
+- Custom favicon (sumo ring SVG)
+
+### Fixed
+- Multiplayer: opponent positions now sync correctly — state relays through PartyKit when WebRTC DataChannel isn't open yet, with automatic upgrade to direct P2P once connected
+- Multiplayer: ICE candidates buffered when they arrive before remote description is set, then flushed — fixes connection failures in race-condition timing
+- Multiplayer: lobby deadlock resolved — arena always mounts during lobby so camera/MediaPipe can initialize, `sendReady` now gated on camera being fully ready
+- Multiplayer: MediaPipe BindingError on cleanup fixed by guarding `onFrame` callback after cancellation
+- Solo: game no longer starts until MediaPipe camera is fully loaded ("LOADING CAMERA..." overlay shown)
+
 ## [0.3.1] - 2026-03-25
 
 ### Fixed

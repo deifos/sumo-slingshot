@@ -69,8 +69,8 @@ export const ArenaMultiplayer = forwardRef<ArenaMultiplayerHandle, Props>(
     const mousePinch = useRef<PinchState>({ active: false, pos: null })
 
     const lastFlashTime = useRef(0)
-    const flashTimeout = useRef<ReturnType<typeof setTimeout>>()
-    const flashTimeoutOpp = useRef<ReturnType<typeof setTimeout>>()
+    const flashTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+    const flashTimeoutOpp = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
     const wasPinching = useRef(false)
 

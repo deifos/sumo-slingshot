@@ -72,7 +72,7 @@ export const Arena = forwardRef<ArenaHandle, ArenaProps>(function Arena(
 
   // Collision flash
   const lastFlashTime = useRef(0)
-  const flashTimeout = useRef<ReturnType<typeof setTimeout>>()
+  const flashTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
   // Bot AI
   const bot = useRef(new Bot())
@@ -152,7 +152,7 @@ export const Arena = forwardRef<ArenaHandle, ArenaProps>(function Arena(
   }, [measureArena, resetPositions])
 
   // Collision flash on both boxes
-  const flashTimeoutOpp = useRef<ReturnType<typeof setTimeout>>()
+  const flashTimeoutOpp = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
   const triggerFlash = useCallback(() => {
     const now = performance.now()

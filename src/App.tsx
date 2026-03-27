@@ -9,11 +9,21 @@ type Screen =
   | { type: "solo" }
   | { type: "online"; mode: "create" | "join"; roomCode: string }
 
+function getInitialJoinCode(): string | undefined {
+  const params = new URLSearchParams(window.location.search)
+  const code = params.get("join")?.trim().toUpperCase()
+  return code?.length === 4 ? code : undefined
+}
+
 export function App() {
   const [screen, setScreen] = useState<Screen>({ type: "landing" })
   const [avatar, setAvatar] = useState("camera")
 
-  const goHome = useCallback(() => setScreen({ type: "landing" }), [])
+  const goHome = useCallback(() => {
+    // Clear ?join= param from URL when going back to landing
+    window.history.replaceState(null, "", window.location.pathname)
+    setScreen({ type: "landing" })
+  }, [])
 
   if (screen.type === "solo") {
     return <Game avatar={avatar} onExit={goHome} />
@@ -32,6 +42,7 @@ export function App() {
 
   return (
     <Landing
+      initialJoinCode={getInitialJoinCode()}
       onPlay={(av) => { setAvatar(av); setScreen({ type: "solo" }) }}
       onCreateRoom={(av) => {
         setAvatar(av)

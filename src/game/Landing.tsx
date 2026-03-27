@@ -8,11 +8,12 @@ interface LandingProps {
   onPlay: (avatar: string) => void
   onCreateRoom: (avatar: string) => void
   onJoinRoom: (code: string, avatar: string) => void
+  initialJoinCode?: string
 }
 
-export function Landing({ onPlay, onCreateRoom, onJoinRoom }: LandingProps) {
-  const [joinMode, setJoinMode] = useState(false)
-  const [code, setCode] = useState("")
+export function Landing({ onPlay, onCreateRoom, onJoinRoom, initialJoinCode }: LandingProps) {
+  const [joinMode, setJoinMode] = useState(!!initialJoinCode)
+  const [code, setCode] = useState(initialJoinCode ?? "")
   const [avatar, setAvatar] = useState<string>("camera")
 
   const handleJoinSubmit = () => {

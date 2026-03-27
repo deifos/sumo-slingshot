@@ -2,6 +2,18 @@
 
 All notable changes to Sumo Slingshot will be documented in this file.
 
+## [0.5.0] - 2026-03-26
+
+### Added
+- Shareable room link in Lobby: `?join=CODE` URL shown below room code with one-click copy
+- Opening a `?join=CODE` link pre-fills the join code on the landing screen so players can pick their avatar before joining
+- OpenGraph / Twitter card meta tags with a branded 1200×630 OG image (`og.svg`)
+
+### Fixed
+- Emoji mode: slingshot pull-back indicator (dotted arc + aim line) now visible alongside hand skeleton
+- Emoji mode: center green aim square always rendered on top
+- Multiplayer collision: removed opponent network velocity from impulse calculation — bodies no longer fly away on contact; opponent is treated as a solid wall
+
 ## [0.4.0] - 2026-03-26
 
 ### Added

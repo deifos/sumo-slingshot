@@ -1,0 +1,53 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#000000"/>
+
+  <!-- Subtle grid -->
+  <line x1="0" y1="315" x2="1200" y2="315" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+  <line x1="600" y1="0" x2="600" y2="630" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+
+  <!-- Ring (right side) -->
+  <circle cx="900" cy="315" r="240" stroke="rgba(255,255,255,0.12)" stroke-width="2" fill="none" stroke-dasharray="10,10"/>
+  <!-- Center dot -->
+  <circle cx="900" cy="315" r="5" fill="rgba(255,255,255,0.1)"/>
+  <!-- Center line -->
+  <line x1="900" y1="75" x2="900" y2="555" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+
+  <!-- Player box (green) -->
+  <rect x="720" y="255" width="110" height="110" fill="rgba(194,254,11,0.08)" stroke="#c2fe0b" stroke-width="2.5"/>
+  <!-- Green box face (simple face) -->
+  <circle cx="751" cy="296" r="6" fill="#c2fe0b" opacity="0.7"/>
+  <circle cx="779" cy="296" r="6" fill="#c2fe0b" opacity="0.7"/>
+  <path d="M748 318 Q775 334 802 318" stroke="#c2fe0b" stroke-width="3" fill="none" opacity="0.7" stroke-linecap="round"/>
+
+  <!-- Opponent box (cyan) -->
+  <rect x="980" y="255" width="110" height="110" fill="rgba(1,255,255,0.08)" stroke="#01ffff" stroke-width="2.5"/>
+  <!-- Cyan box face -->
+  <circle cx="1011" cy="296" r="6" fill="#01ffff" opacity="0.7"/>
+  <circle cx="1039" cy="296" r="6" fill="#01ffff" opacity="0.7"/>
+  <path d="M1008 322 Q1035 308 1062 322" stroke="#01ffff" stroke-width="3" fill="none" opacity="0.7" stroke-linecap="round"/>
+
+  <!-- Slingshot line from green box -->
+  <line x1="775" y1="310" x2="650" y2="210" stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-dasharray="5,7"/>
+  <!-- Arc -->
+  <circle cx="775" cy="310" r="120" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" fill="none" stroke-dasharray="5,7"/>
+  <!-- Aim dot -->
+  <rect x="636" y="196" width="28" height="28" fill="none" stroke="#01ffff" stroke-width="2"/>
+
+  <!-- Title left side -->
+  <text x="80" y="220" font-family="'Courier New', 'Lucida Console', monospace" font-size="118" font-weight="bold" fill="white" letter-spacing="4">SUMO</text>
+  <text x="80" y="355" font-family="'Courier New', 'Lucida Console', monospace" font-size="72" font-weight="bold" fill="white" letter-spacing="4">SLINGSHOT</text>
+
+  <!-- Divider line -->
+  <line x1="80" y1="385" x2="560" y2="385" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+
+  <!-- Subtitle -->
+  <text x="80" y="428" font-family="'Courier New', 'Lucida Console', monospace" font-size="22" fill="rgba(255,255,255,0.35)" letter-spacing="6">WEBCAM SUMO BATTLE</text>
+
+  <!-- Tagline -->
+  <text x="80" y="472" font-family="'Courier New', 'Lucida Console', monospace" font-size="18" fill="rgba(255,255,255,0.2)" letter-spacing="4">PINCH · AIM · RELEASE · WIN</text>
+
+  <!-- URL pill -->
+  <rect x="78" y="530" width="388" height="44" rx="0" fill="rgba(194,254,11,0.08)" stroke="rgba(194,254,11,0.3)" stroke-width="1"/>
+  <text x="272" y="558" font-family="'Courier New', 'Lucida Console', monospace" font-size="17" fill="#c2fe0b" letter-spacing="2" text-anchor="middle">sumo-slingshot.pages.dev</text>
+</svg>

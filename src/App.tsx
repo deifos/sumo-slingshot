@@ -11,11 +11,12 @@ type Screen =
 
 export function App() {
   const [screen, setScreen] = useState<Screen>({ type: "landing" })
+  const [avatar, setAvatar] = useState("camera")
 
   const goHome = useCallback(() => setScreen({ type: "landing" }), [])
 
   if (screen.type === "solo") {
-    return <Game onExit={goHome} />
+    return <Game avatar={avatar} onExit={goHome} />
   }
 
   if (screen.type === "online") {
@@ -23,6 +24,7 @@ export function App() {
       <GameOnline
         mode={screen.mode}
         roomCode={screen.roomCode}
+        avatar={avatar}
         onExit={goHome}
       />
     )
@@ -30,13 +32,15 @@ export function App() {
 
   return (
     <Landing
-      onPlay={() => setScreen({ type: "solo" })}
-      onCreateRoom={() =>
+      onPlay={(av) => { setAvatar(av); setScreen({ type: "solo" }) }}
+      onCreateRoom={(av) => {
+        setAvatar(av)
         setScreen({ type: "online", mode: "create", roomCode: generateRoomCode() })
-      }
-      onJoinRoom={(code) =>
+      }}
+      onJoinRoom={(code, av) => {
+        setAvatar(av)
         setScreen({ type: "online", mode: "join", roomCode: code })
-      }
+      }}
     />
   )
 }

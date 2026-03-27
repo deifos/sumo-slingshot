@@ -17,7 +17,7 @@ import {
   COLOR_HIT,
 } from "./constants"
 import { createBody, isRingOut, launchBody, resolveCollision, stepBody } from "./physics"
-import { drawArena, drawSlingshot } from "./renderer"
+import { drawArena, drawHandLandmarks, drawSlingshot } from "./renderer"
 import { useGameLoop } from "./useGameLoop"
 import { useHandTracking, type PinchState } from "./useHandTracking"
 import { Bot } from "./Bot"
@@ -28,13 +28,14 @@ export interface ArenaHandle {
 
 interface ArenaProps {
   phase: GamePhase
+  avatar?: string
   onRingOut: (who: "player" | "opponent") => void
   onCollision?: () => void
   onCameraReady?: () => void
 }
 
 export const Arena = forwardRef<ArenaHandle, ArenaProps>(function Arena(
-  { phase, onRingOut, onCollision, onCameraReady },
+  { phase, avatar, onRingOut, onCollision, onCameraReady },
   ref,
 ) {
   // Refs for DOM elements
@@ -66,7 +67,7 @@ export const Arena = forwardRef<ArenaHandle, ArenaProps>(function Arena(
   const ringOutFired = useRef(false)
 
   // Pinch state from hand tracking
-  const pinchRef = useHandTracking(videoRef, onCameraReady)
+  const { pinch: pinchRef, landmarks: landmarksRef } = useHandTracking(videoRef, onCameraReady)
 
   // Mouse/touch fallback
   const mousePinch = useRef<PinchState>({ active: false, pos: null })
@@ -210,7 +211,9 @@ export const Arena = forwardRef<ArenaHandle, ArenaProps>(function Arena(
 
     // Detect pinch release -> launch (debounced: require 3 consecutive non-pinch frames
     // to avoid ghost launches from momentary hand-tracking dropouts)
-    if (wasPinching.current && !isPinching) {
+    if (isPinching) {
+      releaseFrames.current = 0
+    } else if (wasPinching.current || releaseFrames.current > 0) {
       releaseFrames.current++
       if (releaseFrames.current >= 3 && activePinch.pos) {
         launchBody(playerBody.current, activePinch.pos, w, h)
@@ -218,8 +221,6 @@ export const Arena = forwardRef<ArenaHandle, ArenaProps>(function Arena(
         mousePinch.current = { active: false, pos: null }
         releaseFrames.current = 0
       }
-    } else {
-      releaseFrames.current = 0
     }
     wasPinching.current = isPinching
 
@@ -283,12 +284,15 @@ export const Arena = forwardRef<ArenaHandle, ArenaProps>(function Arena(
       drawArena(arenaCtx, w, h, ringRadius, pDist, oDist)
     }
 
-    // Draw slingshot overlay (hand tracking only — mouse has no mirrored overlay)
     const overlayCtx = overlayCanvasRef.current?.getContext("2d")
     if (overlayCtx) {
       const ps = playerSize.current
       const handActive = pinchRef.current.active
-      drawSlingshot(overlayCtx, ps, ps, handActive ? pinchRef.current.pos : null)
+      if (avatar && avatar !== "camera" && landmarksRef.current) {
+        drawHandLandmarks(overlayCtx, ps, ps, landmarksRef.current, handActive ? pinchRef.current.pos : null)
+      } else {
+        drawSlingshot(overlayCtx, ps, ps, handActive ? pinchRef.current.pos : null)
+      }
     }
   })
 
@@ -356,13 +360,23 @@ export const Arena = forwardRef<ArenaHandle, ArenaProps>(function Arena(
         className="player-box"
         style={{ borderColor: COLOR_PLAYER }}
       >
+        {/* Video always in DOM for MediaPipe; hidden in emoji mode (hand shown as skeleton instead) */}
         <video
           ref={videoRef}
           autoPlay
           playsInline
           muted
-          className="h-full w-full scale-x-[-1] object-cover"
+          className={
+            avatar && avatar !== "camera"
+              ? "invisible absolute inset-0"
+              : "h-full w-full scale-x-[-1] object-cover"
+          }
         />
+        {avatar && avatar !== "camera" && (
+          <div className="absolute inset-0 flex select-none items-center justify-center text-[4rem] leading-none">
+            {avatar}
+          </div>
+        )}
         <canvas
           ref={overlayCanvasRef}
           className="pointer-events-none absolute inset-0 h-full w-full"

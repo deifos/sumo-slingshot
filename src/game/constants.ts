@@ -1,10 +1,10 @@
 // Physics
-export const FRICTION = 0.94
-export const RESTITUTION = 0.8
-export const PLAYER_MASS = 4
+export const FRICTION = 0.92
+export const RESTITUTION = 0.3
+export const PLAYER_MASS = 7
 
 // Player box size as fraction of arena width
-export const PLAYER_SIZE_RATIO = 0.22
+export const PLAYER_SIZE_RATIO = 0.16
 
 // Hand tracking
 export const PINCH_THRESHOLD = 0.07

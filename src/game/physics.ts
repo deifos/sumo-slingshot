@@ -68,7 +68,9 @@ export function launchBody(body: Body, pinchPos: Vec2, arenaW: number, arenaH: n
   body.vel.y = -dy * arenaH * LAUNCH_MULT
 }
 
-/** Multiplayer collision: only applies impulse to body `a`, treats `b` as immovable network ghost */
+/** Multiplayer collision: only applies impulse to body `a`, treats `b` as a solid wall.
+ *  We do not use b.vel because the opponent's network velocity is often noisy/stale
+ *  and caused wild impulses ("flies away" on contact). Simple reflection is stable. */
 export function resolveCollisionOneSided(
   a: Body,
   b: Body,
@@ -87,11 +89,11 @@ export function resolveCollisionOneSided(
   if (ox < oy) {
     const dir = a.pos.x < b.pos.x ? 1 : -1
     a.pos.x -= dir * ox
-    a.vel.x = -a.vel.x * e + b.vel.x * (1 + e) * 0.5
+    a.vel.x = -a.vel.x * e
   } else {
     const dir = a.pos.y < b.pos.y ? 1 : -1
     a.pos.y -= dir * oy
-    a.vel.y = -a.vel.y * e + b.vel.y * (1 + e) * 0.5
+    a.vel.y = -a.vel.y * e
   }
 
   return true

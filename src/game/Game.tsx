@@ -8,10 +8,11 @@ import { Hud } from "./Hud"
 import { VERSION } from "./version"
 
 interface GameProps {
+  avatar: string
   onExit: () => void
 }
 
-export function Game({ onExit }: GameProps) {
+export function Game({ avatar, onExit }: GameProps) {
   const [phase, setPhase] = useState<GamePhase>("landing")
   const [winner, setWinner] = useState<Winner>(null)
   const [scores, setScores] = useState({ player: 0, opponent: 0 })
@@ -63,7 +64,7 @@ export function Game({ onExit }: GameProps) {
 
   return (
     <div className="relative flex min-h-svh items-center justify-center overflow-hidden bg-black">
-      <Arena ref={arenaRef} phase={phase} onRingOut={handleRingOut} onCameraReady={handleCameraReady} />
+      <Arena ref={arenaRef} phase={phase} avatar={avatar} onRingOut={handleRingOut} onCameraReady={handleCameraReady} />
       {phase === "landing" && (
         <div className="pointer-events-none absolute inset-0 z-20 flex flex-col items-center justify-center gap-3">
           <p className="font-game animate-pulse text-sm tracking-[0.3em] text-white/40">

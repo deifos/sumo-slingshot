@@ -2,6 +2,23 @@
 
 All notable changes to Sumo Slingshot will be documented in this file.
 
+## [0.4.0] - 2026-03-26
+
+### Added
+- Avatar picker on landing screen: choose between webcam or one of 6 emojis (🐼 🦊 🤖 👾 🐸 🦁)
+- Emoji avatars sync to opponent in multiplayer via game state — opponent sees your chosen avatar in their box
+- In emoji mode, hand skeleton drawn on the player box overlay (all 21 landmarks + connections, thumb/index tips highlighted) — full privacy maintained, no camera visible
+
+### Fixed
+- Multiplayer: remote opponent video now plays reliably — explicit `.play()` call after `srcObject` set, plus re-trigger on `addtrack` event (stream is often empty at attach time)
+- Ghost launches: pinch release now requires 3 consecutive non-pinch frames before firing; single-frame hand-tracking dropouts no longer cause unintended launches (affects both solo and multiplayer)
+- Ghost launch debounce counter bug: counter was resetting every other frame due to `wasPinching` going false after the first release frame — fixed by continuing to count while `releaseFrames > 0`
+- Multiplayer: game no longer gets stuck after ring-out — each client only detects and reports their own ring-out; server-authoritative confirmation ends the game for both players
+
+### Changed
+- Player box size reduced (0.22 → 0.16 of arena width) for more open ring feel
+- Physics tuned for heavier, less pinball-like feel: RESTITUTION 0.8 → 0.3, PLAYER_MASS 4 → 7, FRICTION 0.94 → 0.92
+
 ## [0.3.2] - 2026-03-26
 
 ### Added

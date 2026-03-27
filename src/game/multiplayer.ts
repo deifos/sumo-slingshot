@@ -17,7 +17,10 @@ export interface MultiplayerState {
   vx: number
   vy: number
   pinching: boolean
+  avatar?: string // "camera" or emoji string
 }
+
+export const AVATAR_OPTIONS = ["camera", "🐼", "🦊", "🤖", "👾", "🐸", "🦁"] as const
 
 export type RoomStatus =
   | "connecting"

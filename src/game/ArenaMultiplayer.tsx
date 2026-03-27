@@ -18,7 +18,7 @@ import {
   COLOR_HIT,
 } from "./constants"
 import { createBody, isRingOut, launchBody, resolveCollisionOneSided, stepBody } from "./physics"
-import { drawArena, drawSlingshot } from "./renderer"
+import { drawArena, drawHandLandmarks, drawSlingshot } from "./renderer"
 import { useGameLoop } from "./useGameLoop"
 import { useHandTracking, type PinchState } from "./useHandTracking"
 
@@ -28,6 +28,8 @@ export interface ArenaMultiplayerHandle {
 
 interface Props {
   phase: GamePhase
+  avatar?: string
+  opponentAvatar?: string
   playerNumber: 1 | 2
   remoteStream: MediaStream | null
   onRingOut: (who: "player" | "opponent") => void
@@ -38,7 +40,7 @@ interface Props {
 
 export const ArenaMultiplayer = forwardRef<ArenaMultiplayerHandle, Props>(
   function ArenaMultiplayer(
-    { phase, playerNumber, remoteStream, onRingOut, onStateUpdate, opponentState, onCameraReady },
+    { phase, avatar, opponentAvatar, playerNumber, remoteStream, onRingOut, onStateUpdate, opponentState, onCameraReady },
     ref,
   ) {
     const containerRef = useRef<HTMLDivElement>(null)
@@ -59,14 +61,16 @@ export const ArenaMultiplayer = forwardRef<ArenaMultiplayerHandle, Props>(
     const phaseRef = useRef(phase)
     const onRingOutRef = useRef(onRingOut)
     const onStateUpdateRef = useRef(onStateUpdate)
+    const avatarRef = useRef(avatar)
     useEffect(() => {
       phaseRef.current = phase
       onRingOutRef.current = onRingOut
       onStateUpdateRef.current = onStateUpdate
+      avatarRef.current = avatar
     })
     const ringOutFired = useRef(false)
 
-    const pinchRef = useHandTracking(videoRef, onCameraReady)
+    const { pinch: pinchRef, landmarks: landmarksRef } = useHandTracking(videoRef, onCameraReady)
     const mousePinch = useRef<PinchState>({ active: false, pos: null })
 
     const lastFlashTime = useRef(0)
@@ -86,7 +90,7 @@ export const ArenaMultiplayer = forwardRef<ArenaMultiplayerHandle, Props>(
       const onTrack = () => video.play().catch(() => null)
       remoteStream.addEventListener("addtrack", onTrack)
       return () => remoteStream.removeEventListener("addtrack", onTrack)
-    }, [remoteStream])
+    }, [remoteStream, opponentAvatar])
 
     function getActivePinch(): PinchState {
       if (pinchRef.current.active || pinchRef.current.pos) return pinchRef.current
@@ -194,7 +198,9 @@ export const ArenaMultiplayer = forwardRef<ArenaMultiplayerHandle, Props>(
 
       // Detect pinch release -> launch (debounced: require 3 consecutive non-pinch frames
       // to avoid ghost launches from momentary hand-tracking dropouts)
-      if (wasPinching.current && !isPinching) {
+      if (isPinching) {
+        releaseFrames.current = 0
+      } else if (wasPinching.current || releaseFrames.current > 0) {
         releaseFrames.current++
         if (releaseFrames.current >= 3 && activePinch.pos) {
           launchBody(playerBody.current, activePinch.pos, w, h)
@@ -202,8 +208,6 @@ export const ArenaMultiplayer = forwardRef<ArenaMultiplayerHandle, Props>(
           mousePinch.current = { active: false, pos: null }
           releaseFrames.current = 0
         }
-      } else {
-        releaseFrames.current = 0
       }
       wasPinching.current = isPinching
 
@@ -240,6 +244,7 @@ export const ArenaMultiplayer = forwardRef<ArenaMultiplayerHandle, Props>(
         vx: playerBody.current.vel.x / w,
         vy: playerBody.current.vel.y / h,
         pinching: isPinching,
+        avatar: avatarRef.current,
       })
 
       // Ring-out detection: only detect OWN ring-out and report to server.
@@ -273,7 +278,11 @@ export const ArenaMultiplayer = forwardRef<ArenaMultiplayerHandle, Props>(
       if (overlayCtx) {
         const ps = playerSize.current
         const handActive = pinchRef.current.active
-        drawSlingshot(overlayCtx, ps, ps, handActive ? pinchRef.current.pos : null)
+        if (avatarRef.current && avatarRef.current !== "camera" && landmarksRef.current) {
+          drawHandLandmarks(overlayCtx, ps, ps, landmarksRef.current, handActive ? pinchRef.current.pos : null)
+        } else {
+          drawSlingshot(overlayCtx, ps, ps, handActive ? pinchRef.current.pos : null)
+        }
       }
     })
 
@@ -319,13 +328,23 @@ export const ArenaMultiplayer = forwardRef<ArenaMultiplayerHandle, Props>(
 
         {/* My box */}
         <div ref={playerRef} className="player-box" style={{ borderColor: COLOR_PLAYER }}>
+          {/* Video always in DOM for MediaPipe; hidden in emoji mode (hand shown as skeleton instead) */}
           <video
             ref={videoRef}
             autoPlay
             playsInline
             muted
-            className="h-full w-full scale-x-[-1] object-cover"
+            className={
+              avatar && avatar !== "camera"
+                ? "invisible absolute inset-0"
+                : "h-full w-full scale-x-[-1] object-cover"
+            }
           />
+          {avatar && avatar !== "camera" && (
+            <div className="absolute inset-0 flex select-none items-center justify-center text-[4rem] leading-none">
+              {avatar}
+            </div>
+          )}
           <canvas
             ref={overlayCanvasRef}
             className="pointer-events-none absolute inset-0 h-full w-full"
@@ -335,13 +354,19 @@ export const ArenaMultiplayer = forwardRef<ArenaMultiplayerHandle, Props>(
 
         {/* Opponent box */}
         <div ref={opponentRef} className="player-box" style={{ borderColor: COLOR_OPPONENT }}>
-          <video
-            ref={remoteVideoRef}
-            autoPlay
-            playsInline
-            muted
-            className="h-full w-full scale-x-[-1] object-cover"
-          />
+          {opponentAvatar && opponentAvatar !== "camera" ? (
+            <div className="absolute inset-0 flex select-none items-center justify-center text-[4rem] leading-none">
+              {opponentAvatar}
+            </div>
+          ) : (
+            <video
+              ref={remoteVideoRef}
+              autoPlay
+              playsInline
+              muted
+              className="h-full w-full scale-x-[-1] object-cover"
+            />
+          )}
         </div>
       </div>
     )

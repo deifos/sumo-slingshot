@@ -2,28 +2,30 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Footer } from "./Footer"
 import { VERSION } from "./version"
+import { AVATAR_OPTIONS } from "./multiplayer"
 
 interface LandingProps {
-  onPlay: () => void
-  onCreateRoom: () => void
-  onJoinRoom: (code: string) => void
+  onPlay: (avatar: string) => void
+  onCreateRoom: (avatar: string) => void
+  onJoinRoom: (code: string, avatar: string) => void
 }
 
 export function Landing({ onPlay, onCreateRoom, onJoinRoom }: LandingProps) {
   const [joinMode, setJoinMode] = useState(false)
   const [code, setCode] = useState("")
+  const [avatar, setAvatar] = useState<string>("camera")
 
   const handleJoinSubmit = () => {
     const trimmed = code.trim().toUpperCase()
     if (trimmed.length === 4) {
-      onJoinRoom(trimmed)
+      onJoinRoom(trimmed, avatar)
     }
   }
 
   return (
     <div className="flex min-h-svh flex-col bg-black">
       {/* Main content */}
-      <div className="flex flex-1 flex-col items-center justify-center gap-12 p-6">
+      <div className="flex flex-1 flex-col items-center justify-center gap-10 p-6">
         <div className="flex flex-col items-center gap-3 text-center">
           <h1 className="font-game text-[clamp(2rem,10vmin,6rem)] leading-none font-bold tracking-tight text-white">
             SUMO
@@ -35,15 +37,51 @@ export function Landing({ onPlay, onCreateRoom, onJoinRoom }: LandingProps) {
           </p>
         </div>
 
+        {/* Avatar picker */}
+        <div className="flex flex-col items-center gap-2">
+          <span className="font-game text-[0.6rem] tracking-[0.3em] text-white/30">AVATAR</span>
+          <div className="flex gap-2">
+            {AVATAR_OPTIONS.map((opt) => (
+              <button
+                key={opt}
+                onClick={() => setAvatar(opt)}
+                className={`flex h-10 w-10 items-center justify-center border text-xl transition-all ${
+                  avatar === opt
+                    ? "border-[#c2fe0b] bg-[#c2fe0b]/10"
+                    : "border-white/20 bg-white/5 hover:border-white/40"
+                }`}
+                title={opt === "camera" ? "Webcam" : opt}
+              >
+                {opt === "camera" ? (
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    className={avatar === "camera" ? "text-[#c2fe0b]" : "text-white/50"}
+                  >
+                    <path d="M23 7l-7 5 7 5V7z" />
+                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                  </svg>
+                ) : (
+                  opt
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="flex flex-col items-center gap-3">
           <Button
-            onClick={onPlay}
+            onClick={() => onPlay(avatar)}
             className="font-game h-auto w-56 rounded-none border border-white/20 bg-white px-10 py-4 text-sm tracking-[0.2em] text-black transition-all hover:bg-[#c2fe0b] hover:text-black"
           >
             PLAY SOLO
           </Button>
           <Button
-            onClick={onCreateRoom}
+            onClick={() => onCreateRoom(avatar)}
             className="font-game h-auto w-56 rounded-none border border-[#01ffff]/30 bg-[#01ffff]/10 px-10 py-4 text-sm tracking-[0.2em] text-[#01ffff] transition-all hover:bg-[#01ffff]/20"
           >
             CREATE ROOM

@@ -13,16 +13,19 @@ import { VERSION } from "./version"
 interface GameOnlineProps {
   mode: "create" | "join"
   roomCode: string
+  avatar: string
   onExit: () => void
 }
 
-export function GameOnline({ mode, roomCode, onExit }: GameOnlineProps) {
+export function GameOnline({ mode, roomCode, avatar, onExit }: GameOnlineProps) {
   const [phase, setPhase] = useState<GamePhase>("landing") // "landing" = lobby phase here
   const [winner, setWinner] = useState<Winner>(null)
   const [scores, setScores] = useState({ player: 0, opponent: 0 })
   const [countdown, setCountdown] = useState(COUNTDOWN_SECONDS)
+  const [opponentAvatar, setOpponentAvatar] = useState("camera")
   const arenaRef = useRef<ArenaMultiplayerHandle>(null)
   const opponentState = useRef<MultiplayerState | null>(null)
+  const opponentAvatarRef = useRef("camera")
   const [localStream, setLocalStream] = useState<MediaStream | null>(null)
   const [cameraReady, setCameraReady] = useState(false)
 
@@ -68,6 +71,12 @@ export function GameOnline({ mode, roomCode, onExit }: GameOnlineProps) {
 
   const handleOpponentState = useCallback((state: MultiplayerState) => {
     opponentState.current = state
+    // Update opponent avatar when it changes (triggers re-render only on change)
+    const av = state.avatar ?? "camera"
+    if (av !== opponentAvatarRef.current) {
+      opponentAvatarRef.current = av
+      setOpponentAvatar(av)
+    }
   }, [])
 
   const handleRingOutConfirmed = useCallback(
@@ -141,6 +150,8 @@ export function GameOnline({ mode, roomCode, onExit }: GameOnlineProps) {
       <ArenaMultiplayer
         ref={arenaRef}
         phase={phase}
+        avatar={avatar}
+        opponentAvatar={opponentAvatar}
         playerNumber={mp.playerNumber}
         remoteStream={mp.remoteStream}
         onRingOut={handleRingOut}

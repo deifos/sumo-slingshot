@@ -7,6 +7,11 @@ export interface PinchState {
   pos: Vec2 | null
 }
 
+export interface HandTrackingResult {
+  pinch: MutableRefObject<PinchState>
+  landmarks: MutableRefObject<HandLandmark[][] | null>
+}
+
 function loadScript(src: string): Promise<void> {
   return new Promise((resolve, reject) => {
     // Check if already loaded
@@ -35,8 +40,9 @@ async function loadMediaPipe(): Promise<void> {
 export function useHandTracking(
   videoRef: RefObject<HTMLVideoElement | null>,
   onReady?: () => void,
-): MutableRefObject<PinchState> {
+): HandTrackingResult {
   const pinch = useRef<PinchState>({ active: false, pos: null })
+  const landmarks = useRef<HandLandmark[][] | null>(null)
   const onReadyRef = useRef(onReady)
   useEffect(() => {
     onReadyRef.current = onReady
@@ -96,12 +102,14 @@ export function useHandTracking(
           !results.multiHandLandmarks ||
           results.multiHandLandmarks.length === 0
         ) {
+          landmarks.current = null
           if (pinch.current.active) {
             // Released — keep last position for launch calculation
             pinch.current = { active: false, pos: pinch.current.pos }
           }
           return
         }
+        landmarks.current = results.multiHandLandmarks
 
         // Find a pinching hand
         let activePinch: Vec2 | null = null
@@ -173,5 +181,5 @@ export function useHandTracking(
     }
   }, [videoRef])
 
-  return pinch
+  return { pinch, landmarks }
 }

@@ -162,7 +162,7 @@ export function GameOnline({ mode, roomCode, avatar, onExit }: GameOnlineProps) 
       {/* Lobby overlaid on top while waiting */}
       {inLobby && (
         <div className="absolute inset-0 z-50">
-          <Lobby mode={mode} roomCode={roomCode} status={mp.status} onBack={onExit} />
+          <Lobby mode={mode} roomCode={roomCode} status={mp.status} playerNumber={mp.playerNumber} onBack={onExit} />
         </div>
       )}
       <Hud scores={scores} />

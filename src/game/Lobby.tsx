@@ -6,10 +6,11 @@ interface LobbyProps {
   mode: "create" | "join"
   roomCode: string
   status: RoomStatus
+  playerNumber: 1 | 2
   onBack: () => void
 }
 
-export function Lobby({ mode, roomCode, status, onBack }: LobbyProps) {
+export function Lobby({ mode, roomCode, status, playerNumber, onBack }: LobbyProps) {
   const [copied, setCopied] = useState<"code" | "link" | null>(null)
 
   const shareUrl = `${window.location.origin}${window.location.pathname}?join=${roomCode}`
@@ -32,7 +33,7 @@ export function Lobby({ mode, roomCode, status, onBack }: LobbyProps) {
     <div className="flex min-h-svh flex-col items-center justify-center gap-8 bg-black p-6">
       <div className="flex flex-col items-center gap-5 text-center">
         <h2 className="font-game text-lg tracking-[0.3em] text-white/40">
-          {mode === "create" ? "ROOM CREATED" : "JOINING ROOM"}
+          {mode === "create" ? "ROOM CREATED" : "JOIN ROOM"}
         </h2>
 
         {/* Room code */}
@@ -74,7 +75,7 @@ export function Lobby({ mode, roomCode, status, onBack }: LobbyProps) {
         </button>
 
         {/* Status message */}
-        <StatusMessage status={status} />
+        <StatusMessage status={status} mode={mode} playerNumber={playerNumber} />
       </div>
 
       <Button
@@ -88,7 +89,15 @@ export function Lobby({ mode, roomCode, status, onBack }: LobbyProps) {
   )
 }
 
-function StatusMessage({ status }: { status: RoomStatus }) {
+function StatusMessage({
+  status,
+  mode,
+  playerNumber,
+}: {
+  status: RoomStatus
+  mode: "create" | "join"
+  playerNumber: 1 | 2
+}) {
   switch (status) {
     case "connecting":
       return (
@@ -97,6 +106,14 @@ function StatusMessage({ status }: { status: RoomStatus }) {
         </p>
       )
     case "waiting":
+      // Joined as player 1 means the room was empty — host left or code is wrong
+      if (mode === "join" && playerNumber === 1) {
+        return (
+          <p className="font-game text-sm tracking-wider text-[#ff0d1a]">
+            ROOM NOT FOUND — HOST MAY HAVE LEFT
+          </p>
+        )
+      }
       return (
         <p className="font-game animate-pulse text-sm tracking-wider text-white/30">
           WAITING FOR OPPONENT...
